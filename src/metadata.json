@@ -1,0 +1,19 @@
+{
+    "KPlugin": {
+        "Name": "Endless Desktop",
+        "Description": "Pan all windows as an endless canvas with keyboard shortcuts",
+        "Icon": "preferences-system-windows",
+        "Authors": [
+            {
+                "Name": "aisatan"
+            }
+        ],
+        "Id": "endlessdesktop",
+        "Version": "1.0",
+        "License": "GPLv3"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js",
+    "X-KDE-ConfigModule": "kwin/effects/configs/kcm_kwin4_genericscripted",
+    "KPackageStructure": "KWin/Script"
+}
