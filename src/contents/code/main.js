@@ -1,22 +1,45 @@
 // Endless Desktop — KWin Script
 // Pans all windows on the current desktop vertically as a single canvas layer.
 
-var STEP = readConfig("stepSize", 80);
-var INVERT = readConfig("invertUpDown", false);
-var DIR = INVERT ? -1 : 1;
+function getStep() {
+    return Number(readConfig("stepSize", 80));
+}
 
-var offset = 0;
+function getDir() {
+    return String(readConfig("invertUpDown", false)) === "true" ? -1 : 1;
+}
+
+var offsets = {};
+
+function currentDesktopId() {
+    return workspace.currentDesktop.id;
+}
+
+function getOffset() {
+    return offsets[currentDesktopId()] || 0;
+}
+
+function setOffset(value) {
+    offsets[currentDesktopId()] = value;
+}
+
+function isOnCurrentDesktop(w) {
+    var desktops = w.desktops;
+    if (desktops.length === 0) return true;
+    var currentId = workspace.currentDesktop.id;
+    for (var i = 0; i < desktops.length; i++) {
+        if (desktops[i].id === currentId) return true;
+    }
+    return false;
+}
 
 function getFilteredWindows() {
     var windows = workspace.stackingOrder;
     var result = [];
     for (var i = 0; i < windows.length; i++) {
         var w = windows[i];
-        if (w.normalWindow && !w.deleted) {
-            var desktops = w.desktops;
-            if (desktops.length === 0 || desktops.indexOf(workspace.currentDesktop) !== -1) {
-                result.push(w);
-            }
+        if (w.normalWindow && !w.deleted && isOnCurrentDesktop(w)) {
+            result.push(w);
         }
     }
     return result;
@@ -33,7 +56,7 @@ function moveWindow(w, dy) {
 }
 
 function panBy(delta) {
-    offset += delta;
+    setOffset(getOffset() + delta);
     var windows = getFilteredWindows();
     for (var i = 0; i < windows.length; i++) {
         moveWindow(windows[i], delta);
@@ -41,21 +64,22 @@ function panBy(delta) {
 }
 
 function goHome() {
-    panBy(-offset);
+    panBy(-getOffset());
 }
 
 // Shift newly opened windows to match current canvas offset
 workspace.windowAdded.connect(function(w) {
-    if (offset !== 0 && w.normalWindow && !w.deleted) {
-        var count = 0;
-        var handler = function() {
-            count++;
-            if (count >= 3) {
-                w.frameGeometryChanged.disconnect(handler);
-                moveWindow(w, offset);
+    var currentOffset = getOffset();
+    if (currentOffset !== 0 && w.normalWindow && !w.deleted) {
+        var timer = new QTimer();
+        timer.interval = 50;
+        timer.singleShot = true;
+        timer.timeout.connect(function() {
+            if (!w.deleted) {
+                moveWindow(w, currentOffset);
             }
-        };
-        w.frameGeometryChanged.connect(handler);
+        });
+        timer.start();
     }
 });
 
@@ -64,14 +88,14 @@ registerShortcut(
     "EndlessDesktop Up",
     "EndlessDesktop: Pan Up",
     "Meta+Ctrl+Shift+Up",
-    function() { panBy(STEP * DIR); }
+    function() { panBy(getStep() * getDir()); }
 );
 
 registerShortcut(
     "EndlessDesktop Down",
     "EndlessDesktop: Pan Down",
     "Meta+Ctrl+Shift+Down",
-    function() { panBy(-STEP * DIR); }
+    function() { panBy(-getStep() * getDir()); }
 );
 
 registerShortcut(
