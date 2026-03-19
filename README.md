@@ -6,4 +6,4 @@
 [![KWin Script](https://img.shields.io/badge/KWin-Script-green?style=flat-square)](https://develop.kde.org/docs/plasma/kwin/)
 
 Extends your desktop vertically.
-Move your desktop up and down endlessly, or jump home at any moment.
+Move your desktop up and down endlessly, or jump back to home at any moment.
