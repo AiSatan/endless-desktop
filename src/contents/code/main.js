@@ -88,14 +88,14 @@ registerShortcut(
     "EndlessDesktop Up",
     "EndlessDesktop: Pan Up",
     "Meta+Ctrl+Shift+Up",
-    function() { panBy(getStep() * getDir()); }
+    function() { panBy(-getStep() * getDir()); }
 );
 
 registerShortcut(
     "EndlessDesktop Down",
     "EndlessDesktop: Pan Down",
     "Meta+Ctrl+Shift+Down",
-    function() { panBy(-getStep() * getDir()); }
+    function() { panBy(getStep() * getDir()); }
 );
 
 registerShortcut(
